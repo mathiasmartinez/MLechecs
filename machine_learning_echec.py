@@ -65,25 +65,8 @@ def initialisation(color):
         e[0][3] = 102
         e[7][4] = 91
         e[0][4] = 92
-    print(e)
-    
-def pawn_w(s):
-    # Déplacement d'un pion blanc  sans prise
-    l = s[0]
-    n = int(s[1])
-    if n==6:
-        return [l+str(int(n)+1),l+str(int(n)+2)]
-    else :
-        return [l+str(int(n)+1)]
+    return e
 
-def pawn_b(s):
-    # Déplacement d'un pion noir sans prise
-    l = s[0]
-    n = int(s[1])
-    if n==6:
-        return [l+str(int(n)-1) , l+str(n-2)]
-    else :
-        return [l+str(n-1)]
 
 def bish(s):
     # Cases possibles d'un fou
@@ -249,7 +232,7 @@ def g_roque_adv(M,color):
         M[0,2] = 101
         M[0,0] = 0
         M[0,3] = 51
-    if color == 'Blcak':
+    if color == 'Black':
         M[0,3] = 0
         M[0,5] = 101
         M[0,7] = 0
@@ -275,7 +258,7 @@ def p_roque_adv(M,color):
         M[0,2] = 101
         M[0,0] = 0
         M[0,3] = 51
-    if color == 'Blcak':
+    if color == 'Black':
         M[0,3] = 0
         M[0,5] = 101
         M[0,7] = 0
@@ -283,23 +266,142 @@ def p_roque_adv(M,color):
     return 0
 
 def detect_pawn(s):
-    # LA pièce déplacée est elle un pion ?
+    # La pièce déplacée est elle un pion ?
     if len(s)==2:
         return True
     
-        
+def displace(x,y,a,b,M):
+    # Déplace une pièce d'une position x,y vers une position a,b
+    stockage = M[x][y]
+    M[a][b] = stockage
+    M[x][y] = 0
+    return 0
+
+def v_knight(s,M,prop):
+    # Vérifie si un cavalier peut se déplacer vers la case s et renvoie la position de ce cavalier
+    if prop=='me':
+        value = 31
+    else:
+        value = 32
+    for i in range(8):
+        for j in range(8):
+            if M[i][j]== value:
+                for place in knight(postostr(i,j)):
+                    if place==s:
+                        return [i,j]
+   
+def v_bish(s,M,prop):
+    # Vérifie si un fou peut se déplacer vers la case s et renvoie la position de ce fou
+    if prop=='me':
+        value = 33
+    else:
+        value = 34
+    for i in range(8):
+        for j in range(8):
+            if M[i][j]== value:
+                for place in bish(postostr(i,j)):
+                    if place==s:
+                        return [i,j]
+def v_queen(s,M,prop):
+    # Vérifie si une dame peut se déplacer vers la case s et renvoie la position de cette dame
+    if prop=='me':
+        value = 91
+    else:
+        value = 92
+    for i in range(8):
+        for j in range(8):
+            if M[i][j]== value:
+                for place in queen(postostr(i,j)):
+                    if place==s:
+                        return [i,j]              
+   
+def v_tow(s,M,prop):
+# Vérifie si une tour peut se déplacer vers la case s et renvoie la position de cette tour
+    if prop=='me':
+        value = 51
+    else:
+        value = 52
+    for i in range(8):
+        for j in range(8):
+            if M[i][j]== value:
+                for place in tow(postostr(i,j)):
+                    if place==s:
+                        return [i,j]
+  
+def v_king(s,M,prop):
+# Vérifie si un roi peut se déplacer vers la case s et renvoie la position de ce roi
+    if prop=='me':
+        value = 101
+    else:
+        value = 102
+    for i in range(8):
+        for j in range(8):
+            if M[i][j]== value:
+                for place in king(postostr(i,j)):
+                    if place==s:
+                        return [i,j]
+
+def pawn_me(s,M):
+    # Déplacement possible d'un pion à moi 
+    l = s[0]
+    n = int(s[1])
+    p = [] # Liste des positions possibles
+    if M[strtopos(l+str(int(n)+1))]==0: # On vérifie que la case est vide
+        p += [l+str(int(n)+1)]
+    if n==6 and M[strtopos(l+str(int(n)+2))]==0:
+        p+= [l+str(int(n)+2)] # Le pion n'a pas encore bougé, il peut avancer de 2 cases
+        p+= [l+str(int(n)+1)]
+    if M[strtopos(s)[1]-1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]-1] !=0:
+        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]-1)]
+    if M[strtopos(s)[1]-1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]+1] !=0:
+        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]+1)]
+
+def pawn_adv(s,M):
+    # Déplacement possible d'un pion adverse
+    l = s[0]
+    n = int(s[1])
+    p=[]
+    if M[strtopos(l+str(int(n)-1))]==0: # On vérifie que la case est vide
+        p += [l+str(int(n)-1)]
+    if n==6 and M[strtopos(l+str(int(n)-2))]==0:
+        p+= [l+str(n-2)]
+    if M[strtopos(s)[1]+1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]-1] !=0:
+        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]-1)]
+    if M[strtopos(s)[1]+1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]+1] !=0:
+        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]+1)]
+    return p
 liste_M = []
 color = 'White'
 for partie in parties_w:
     Mat = initialisation(color)
     for k in range(int(len(partie)/3)):
-        partie.pop(2*k)
-    compt = 0
-    for c in partie:
-        
-        if len(c)==2:
-            if compt%2==0:
-                for m in Mat:
-                    if m==11 and pawn_w()==
-            
+        partie.pop(2*k) # On supprime les numeros des coups
+    
+   
+ 
+
+# TEST TRAITEMENT DONNEES
+import os #path handling
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier #kNN classifier
+from sklearn.model_selection import train_test_split #Data set splitting functions
+from sklearn.metrics import confusion_matrix #Confusion matrix**
+import random
+random.seed(10)
+
+M_0 = initialisation('White')
+M_1 = displace(6,1,5,1,M_0)
+
+
+Matrix_datas = []
+Matrix_Y = []
+
+# trainData,testData,trainY,testY = train_test_split(Matrix_datas,Matrix_Y,test_size=0.1) # Séparation en données d'entrainement et données de test
+
+# kNN = KNeighborsClassifier(n_neighbors=8,algorithm='kd_tree',metric='minkowski',p=2,n_jobs=-1)
+# kNN.fit(trainData,trainY) # Entrainement du réseau de neurone
+# trainPredictionsk = kNN.predict(trainData)
+# trainCMk = confusion_matrix(y_pred=trainPredictionsk,y_true=trainY)
+# testpredict = kNN.predict(testData)
+# testCM = confusion_matrix(y_pred=testpredict,y_true=testY)
     

@@ -1,8 +1,14 @@
 import numpy as np
 import copy
+
+# Pour la suite :
+    # - Je situe toujours mes pièces en bas de la matrice
+    # - J'exclue les parties ou il ya plusieurs dames (impossible pour le ML a mon avis)
+    
+    
 f = open('parties.txt','r')
 c=0
-parties_w = []
+parties_w = [] # Parties ou je joue les blancs
 parties_b = []
 parties  = []
 for ligne in f :
@@ -11,7 +17,7 @@ for ligne in f :
     if ligne[0]=='1' and ligne[1]=='.':
         
         #parties += [[color,str.split(ligne)]]
-        if color=='White':
+        if color=='White': # Séparation des parties ou je joueles blancs
             parties_w += [str.split(ligne)]
         else:
             parties_b += [str.split(ligne)]
@@ -27,7 +33,12 @@ letters = ['a','b','c','d','e','f','g','h']
 # Cavalier adverse : 32
 # Fou moi : 33
 # Fou adverse : 34
+# Dame moi : 91
+# Dame adverse : 92
+# Roi moi : 101
+# Roi adverse : 102
 def initialisation(color):
+    # Création du plateau initial 
     e = np.zeros((8,8))
     for k in range(8):
         e[1][k] = 12
@@ -57,6 +68,7 @@ def initialisation(color):
     print(e)
     
 def pawn_w(s):
+    # Déplacement d'un pion blanc  sans prise
     l = s[0]
     n = int(s[1])
     if n==6:
@@ -65,6 +77,7 @@ def pawn_w(s):
         return [l+str(int(n)+1)]
 
 def pawn_b(s):
+    # Déplacement d'un pion noir sans prise
     l = s[0]
     n = int(s[1])
     if n==6:
@@ -73,6 +86,7 @@ def pawn_b(s):
         return [l+str(n-1)]
 
 def bish(s):
+    # Cases possibles d'un fou
     l=s[0]
     n=int(s[1])
     for k in range(8):
@@ -107,6 +121,7 @@ def bish(s):
     return  p
     
 def tow(s):
+    # Cases possibles d'une tour
     l=s[0]
     n=int(s[1])
     p = []
@@ -119,6 +134,7 @@ def tow(s):
     return p
 
 def king(s):
+    # Cases possibles du roi
     l=s[0]
     n=int(s[1])
     for k in range(8):
@@ -189,6 +205,7 @@ def knight(s):
     return p
     
 def placer(L):
+    # Fonction permettant de placer une case sous forme de string dans la matrice de la partie
     M = np.zeros((8,8))
     for s in L:
         l=s[0]
@@ -200,9 +217,11 @@ def placer(L):
     return M
         
 def postostr(x,y):
+    # Conversion de la position en case string
     return letters[x] + str(y)
     
 def strtopos(s):
+    # Conversion d'une case string en position dans la matrice
     l=s[0]
     n=int(s[1])
     for k in range(8):
@@ -211,6 +230,7 @@ def strtopos(s):
     return [pos,n]
 
 def g_roque_me(M,color):
+    # Déplacement des poièces pour un grand roque de moi
     if color == 'White':
         M[7,4] = 0
         M[7,2] = 101
@@ -263,7 +283,10 @@ def p_roque_adv(M,color):
     return 0
 
 def detect_pawn(s):
+    # LA pièce déplacée est elle un pion ?
     if len(s)==2:
+        return True
+    
         
 liste_M = []
 color = 'White'

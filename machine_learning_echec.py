@@ -342,34 +342,37 @@ def v_king(s,M,prop):
                         return [i,j]
 
 def pawn_me(s,M):
-    # Déplacement possible d'un pion à moi 
+    # Cases possible permettant à un pion à moi d'arriver en s
     l = s[0]
     n = int(s[1])
     p = [] # Liste des positions possibles
     if M[strtopos(l+str(int(n)+1))]==0: # On vérifie que la case est vide
         p += [l+str(int(n)+1)]
-    if n==6 and M[strtopos(l+str(int(n)+2))]==0:
+    if n==4 and M[strtopos(l+str(int(n)+1))]==0:
         p+= [l+str(int(n)+2)] # Le pion n'a pas encore bougé, il peut avancer de 2 cases
-        p+= [l+str(int(n)+1)]
-    if M[strtopos(s)[1]-1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]-1] !=0:
-        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]-1)]
-    if M[strtopos(s)[1]-1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]+1] !=0:
-        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]+1)]
+    if M[strtopos(s)[1]+1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]-1] !=0:
+        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]+1)] # Les axes sont inversés quand on passe en string
+    if M[strtopos(s)[1]+1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]+1] !=0:
+        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]+1)]
 
 def pawn_adv(s,M):
-    # Déplacement possible d'un pion adverse
+    # Cases possible permettant à un pion adverse d'arriver en s
     l = s[0]
     n = int(s[1])
     p=[]
     if M[strtopos(l+str(int(n)-1))]==0: # On vérifie que la case est vide
         p += [l+str(int(n)-1)]
-    if n==6 and M[strtopos(l+str(int(n)-2))]==0:
+    if n==3 and M[strtopos(l+str(int(n)-1))]==0:
         p+= [l+str(n-2)]
-    if M[strtopos(s)[1]+1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]-1] !=0:
+    if M[strtopos(s)[1]-1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]-1] !=0:
+        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]-1)]
+    if M[strtopos(s)[1]-1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]+1] !=0:
         p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]-1)]
-    if M[strtopos(s)[1]+1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]+1] !=0:
-        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]+1)]
     return p
+
+
+        
+        
 liste_M = []
 color = 'White'
 for partie in parties_w:

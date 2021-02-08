@@ -214,68 +214,73 @@ def strtopos(s):
 
 def g_roque_me(M,color):
     # Déplacement des poièces pour un grand roque de moi
+    new_M = copy.copy(M)
     if color == 'White':
-        M[7,4] = 0
-        M[7,2] = 101
-        M[7,0] = 0
-        M[7,3] = 51
+        new_M[7,4] = 0
+        new_M[7,2] = 101
+        new_M[7,0] = 0
+        new_M[7,3] = 51
     if color == 'Black':
-        M[7,3] = 0
-        M[7,5] = 101
-        M[7,7] = 0
-        M[7,4] = 51
-    return 0
+        new_M[7,3] = 0
+        new_M[7,5] = 101
+        new_M[7,7] = 0
+        new_M[7,4] = 51
+    return new_M
 
 def g_roque_adv(M,color):
+    new_M = copy.copy(M)
     if color == 'White': # Ma couleur à moi donc ca inverse
-        M[0,4] = 0
-        M[0,2] = 101
-        M[0,0] = 0
-        M[0,3] = 51
+        new_M[0,4] = 0
+        new_M[0,2] = 101
+        new_M[0,0] = 0
+        new_M[0,3] = 51
     if color == 'Black':
-        M[0,3] = 0
-        M[0,5] = 101
-        M[0,7] = 0
-        M[0,4] = 51
-    return 0
+        new_M[0,3] = 0
+        new_M[0,5] = 101
+        new_M[0,7] = 0
+        new_M[0,4] = 51
+    return new_M
 
 def p_roque_me(M,color):
+    new_M = copy.copy(M)
     if color == 'White':
-        M[7,4] = 0
-        M[7,6] = 101
-        M[7,7] = 0
-        M[7,5] = 51
+        new_M[7,4] = 0
+        new_M[7,6] = 101
+        new_M[7,7] = 0
+        new_M[7,5] = 51
     if color == 'Black':
-        M[7,3] = 0
-        M[7,1] = 101
-        M[7,0] = 0
-        M[7,2] = 51
-    return 0
+        new_M[7,3] = 0
+        new_M[7,1] = 101
+        new_M[7,0] = 0
+        new_M[7,2] = 51
+    return new_M
 
 def p_roque_adv(M,color):
+    new_M = copy.copy(M)
     if color == 'White': # Ma couleur à moi donc ca inverse
-        M[0,4] = 0
-        M[0,2] = 101
-        M[0,0] = 0
-        M[0,3] = 51
+        new_M[0,4] = 0
+        new_M[0,2] = 101
+        new_M[0,0] = 0
+        new_M[0,3] = 51
     if color == 'Black':
-        M[0,3] = 0
-        M[0,5] = 101
-        M[0,7] = 0
-        M[0,4] = 51
-    return 0
+        new_M[0,3] = 0
+        new_M[0,5] = 101
+        new_M[0,7] = 0
+        new_M[0,4] = 51
+    return new_M
 
 def detect_pawn(s):
     # La pièce déplacée est elle un pion ?
     if len(s)==2:
         return True
     
-def displace(x,y,a,b,M):
+def displace(pos0,pos1,M,L):
     # Déplace une pièce d'une position x,y vers une position a,b
-    stockage = M[x][y]
-    M[a][b] = stockage
-    M[x][y] = 0
-    return 0
+    new_M = copy.copy(M)
+    stockage = M[pos0[0]][pos0[1]]
+    new_M[pos1[0]][pos1[1]] = stockage
+    new_M[pos0[0]][pos0[1]] = 0
+    return new_M
 
 def v_knight(s,M,prop):
     # Vérifie si un cavalier peut se déplacer vers la case s et renvoie la position de ce cavalier
@@ -370,9 +375,36 @@ def pawn_adv(s,M):
         p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]-1)]
     return p
 
-
-        
-        
+def detect_move(s,M,player,color):
+    s.remove('+')
+    s.remove('#')
+    if len(s)==2 and player=='me':
+        for pos in pawn_me(s,M):
+            if M[strtopos(pos)[1]][strtopos(pos)[0]]==11:
+                return strtopos(pos)
+    if len(s)==2 and player!='me':
+        for pos in pawn_adv(s,M):
+            if M[strtopos(pos)[1]][strtopos(pos)[0]]==11:
+                return strtopos(pos)
+    if s[0]=='N':
+        return displace(v_knight(s[-2:],M,player),strtopos(s),M,player) 
+    if s[0]=='B':
+        return displace(v_bish(s[-2:],M,player),strtopos(s),M,player)
+    if s[0]=='Q':
+        return displace(v_queen(s[-2:],M,player),strtopos(s),M,player)
+    if s[0]=='R':
+        return displace(v_tow(s[-2:],M,player),strtopos(s),M,player) 
+    if s[0]=='K':
+        return displace(v_king(s[-2:],M,player),strtopos(s),M,player)
+    if s=='O-O' and player=='me':
+        return g_roque_me(M,color)
+    if s=='o-o' and player=='me':
+        return p_roque_me(M,color)
+    if s=='O-O' and player=='adv':
+        return g_roque_adv(M,color)
+    if s=='o-o' and player=='me':
+        return g_roque_adv(M,color)
+    
 liste_M = []
 color = 'White'
 for partie in parties_w:

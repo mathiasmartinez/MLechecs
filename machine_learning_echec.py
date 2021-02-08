@@ -199,18 +199,21 @@ def placer(L):
         M[n,pos] = 1
     return M
         
+
 def postostr(x,y):
     # Conversion de la position en case string
     return letters[x] + str(y)
     
 def strtopos(s):
+    
     # Conversion d'une case string en position dans la matrice
-    l=s[0]
-    n=int(s[1])
+    l=s[-2:-1]
+    n=int(s[-1:])
+    
     for k in range(8):
         if l==letters[k]:
-            pos = k
-    return [pos,n]
+            pos_search = k
+    return [pos_search,8-n]
 
 def g_roque_me(M,color):
     # Déplacement des poièces pour un grand roque de moi
@@ -269,17 +272,14 @@ def p_roque_adv(M,color):
         new_M[0,4] = 51
     return new_M
 
-def detect_pawn(s):
-    # La pièce déplacée est elle un pion ?
-    if len(s)==2:
-        return True
     
-def displace(pos0,pos1,M,L):
+def displace(pos0,pos1,M,player):
     # Déplace une pièce d'une position x,y vers une position a,b
     new_M = copy.copy(M)
     stockage = M[pos0[0]][pos0[1]]
     new_M[pos1[0]][pos1[1]] = stockage
     new_M[pos0[0]][pos0[1]] = 0
+    print(new_M)
     return new_M
 
 def v_knight(s,M,prop):
@@ -301,6 +301,7 @@ def v_bish(s,M,prop):
         value = 33
     else:
         value = 34
+    
     for i in range(8):
         for j in range(8):
             if M[i][j]== value:
@@ -351,44 +352,47 @@ def pawn_me(s,M):
     l = s[0]
     n = int(s[1])
     p = [] # Liste des positions possibles
-    if M[strtopos(l+str(int(n)+1))]==0: # On vérifie que la case est vide
-        p += [l+str(int(n)+1)]
-    if n==4 and M[strtopos(l+str(int(n)+1))]==0:
-        p+= [l+str(int(n)+2)] # Le pion n'a pas encore bougé, il peut avancer de 2 cases
-    if M[strtopos(s)[1]+1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]-1] !=0:
-        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]+1)] # Les axes sont inversés quand on passe en string
-    if M[strtopos(s)[1]+1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]+1] !=0:
-        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]+1)]
-
+    #if M[strtopos(l+str(n+1))[1]][strtopos(l+str(n+1))[0]]==0: # On vérifie que la case est vide
+    p += [l+str(int(n)-1)]
+    if n==4 and M[strtopos(l+str(n+1))[1]][strtopos(l+str(n+1))[0]]==0:
+        p+= [l+str(int(n)-2)] # Le pion n'a pas encore bougé, il peut avancer de 2 cases
+    if strtopos(s)[0]>=1 and M[strtopos(s)[1]+1][strtopos(s)[0]-1]%2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]-1] !=0:
+        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]-1)] # Les axes sont inversés quand on passe en string
+    if strtopos(s)[0] <=6 and M[strtopos(s)[1]+1][strtopos(s)[0]+1]%2 == 0 and M[strtopos(s)[1]+1][strtopos(s)[0]+1] !=0:
+        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]-1)]
+    return p
+    
 def pawn_adv(s,M):
     # Cases possible permettant à un pion adverse d'arriver en s
     l = s[0]
     n = int(s[1])
     p=[]
-    if M[strtopos(l+str(int(n)-1))]==0: # On vérifie que la case est vide
-        p += [l+str(int(n)-1)]
-    if n==3 and M[strtopos(l+str(int(n)-1))]==0:
-        p+= [l+str(n-2)]
-    if M[strtopos(s)[1]-1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]-1] !=0:
-        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]-1)]
-    if M[strtopos(s)[1]-1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]+1] !=0:
-        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]-1)]
+    #if M[strtopos(l+str(n-1))[1]][strtopos(l+str(n-1))[0]]==0: # On vérifie que la case est vide
+    p += [l+str(int(n)+1)]
+    if n==5 and M[strtopos(l+str(n-1))[1]][strtopos(l+str(n-1))[1]]==0:
+        p+= [l+str(n+2)]
+    if strtopos(s)[0]>=1 and M[strtopos(s)[1]-1][strtopos(s)[0]-1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]-1] !=0:
+        p+= [postostr(strtopos(s)[0]-1,strtopos(s)[1]+1)]
+    if strtopos(s)[0]<=6 and M[strtopos(s)[1]-1][strtopos(s)[0]+1] % 2 == 0 and M[strtopos(s)[1]-1][strtopos(s)[0]+1] !=0:
+        p+= [postostr(strtopos(s)[0]+1,strtopos(s)[1]+1)]
     return p
 
 def detect_move(s,M,player,color):
-    s.remove('+')
-    s.remove('#')
+    
+    s = s.replace("#", "")
+    s = s.replace("+", "")
     if len(s)==2 and player=='me':
         for pos in pawn_me(s,M):
             if M[strtopos(pos)[1]][strtopos(pos)[0]]==11:
-                return strtopos(pos)
-    if len(s)==2 and player!='me':
+                return displace(strtopos(pos),strtopos(s),M,player)
+    if len(s)==2 and player=='adv':
         for pos in pawn_adv(s,M):
-            if M[strtopos(pos)[1]][strtopos(pos)[0]]==11:
-                return strtopos(pos)
+            if M[strtopos(pos)[1]][strtopos(pos)[0]]==12:
+                return displace(strtopos(pos),strtopos(s),M,player)
     if s[0]=='N':
         return displace(v_knight(s[-2:],M,player),strtopos(s),M,player) 
     if s[0]=='B':
+        
         return displace(v_bish(s[-2:],M,player),strtopos(s),M,player)
     if s[0]=='Q':
         return displace(v_queen(s[-2:],M,player),strtopos(s),M,player)
@@ -405,14 +409,29 @@ def detect_move(s,M,player,color):
     if s=='o-o' and player=='me':
         return g_roque_adv(M,color)
     
+    
 liste_M = []
 color = 'White'
+compt_glob = 0 # permet de recuperer l'état t-1
 for partie in parties_w:
+    
     Mat = initialisation(color)
+    liste_M += [Mat]
+    compt_loc = 0
     for k in range(int(len(partie)/3)):
         partie.pop(2*k) # On supprime les numeros des coups
-    
-   
+    #print(partie)
+    for swag in partie:
+        
+        if compt_loc%2==0:
+            
+            liste_M += [detect_move(swag,liste_M[compt_glob],'me','White')]
+        else:
+            
+            liste_M += [detect_move(swag,liste_M[compt_glob],'adv','White')]
+                                
+        compt_glob += 1
+        compt_loc += 1
  
 
 # TEST TRAITEMENT DONNEES

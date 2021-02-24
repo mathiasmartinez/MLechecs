@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier #kNN classifier
 from sklearn.model_selection import train_test_split #Data set splitting functions
 from sklearn.metrics import confusion_matrix #Confusion matrix**
+from sklearn.multioutput import MultiOutputClassifier
 import numpy as np
 import random
 import copy
@@ -132,10 +133,11 @@ DFx = pd.DataFrame(Mx)
 DFy = pd.DataFrame(List_coups)
 
 
-trainData,testData,trainY,testY = train_test_split(DFx,DFy,test_size=0.1) # Séparation en données d'entrainement et données de test
+trainData,testData,trainY,testY = train_test_split(Mx,List_coups,test_size=0.1) # Séparation en données d'entrainement et données de test
 kNN = KNeighborsClassifier(n_neighbors=8,algorithm='kd_tree',metric='minkowski',p=2,n_jobs=-1)
-kNN.fit(trainData,trainY) # Entrainement du réseau de neurone
-trainPredictionsk = kNN.predict(trainData)
+classifier = MultiOutputClassifier(kNN, n_jobs=-1)
+classifier.fit(trainData,trainY) # Entrainement du réseau de neurone
+trainPredictionsk = classifier.predict(trainData) # Entrainement à la prédiction de la sortie 
 trainCMk = confusion_matrix(y_pred=trainPredictionsk,y_true=trainY)
-testpredict = kNN.predict(testData)
+testpredict = classifier.predict(testData)
 testCM = confusion_matrix(y_pred=testpredict,y_true=testY)

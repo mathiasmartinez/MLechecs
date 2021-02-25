@@ -87,7 +87,8 @@ for i in range(64):
     for j in range(64):
         Ids[i][j] = ident
         ident += 1
-        
+
+# Quelques matrices de position pour tester
 for k in range(1000):
     Matrix += [M_0]
     Matrix += [M_1]
@@ -121,7 +122,7 @@ for m in range(len(Matrix)):
     c = 0
     for i in range(8):
         for j in range(8):
-            Mx[m][c] = Matrix[m][i][j]
+            Mx[m][c] = Matrix[m][i][j] # On aplatit la matrice des positions sur une ligne 
             My[m][c] = Matrix_Y[m][i][j]
             c += 1
             
@@ -138,6 +139,8 @@ kNN = KNeighborsClassifier(n_neighbors=8,algorithm='kd_tree',metric='minkowski',
 classifier = MultiOutputClassifier(kNN, n_jobs=-1)
 classifier.fit(trainData,trainY) # Entrainement du réseau de neurone
 trainPredictionsk = classifier.predict(trainData) # Entrainement à la prédiction de la sortie 
-trainCMk = confusion_matrix(y_pred=trainPredictionsk,y_true=trainY)
+
+trainCMk = confusion_matrix(y_pred=trainPredictionsk,y_true=trainY) # Calcul matrice de confusion
 testpredict = classifier.predict(testData)
-testCM = confusion_matrix(y_pred=testpredict,y_true=testY)
+testCM = confusion_matrix(y_pred=testpredict,y_true=testY) # Matrice de confusion, les résultats juste sont comptés sur la diagonale, les autres sur le reste de la matrice.
+print('Score = ' + str(testCM.trace()/sum(sum(testCM))))

@@ -73,7 +73,7 @@ M_3_bis = displace([6,4],[4,4],M_2_bis)
 Matrix = []
 Matrix_Y = []
 
-n_positions = 3000
+n_positions = 9000
 
 
 Mx = np.zeros((n_positions,64)) # Entrées (les positions aplaties sur chaque ligne)
@@ -89,12 +89,12 @@ for i in range(64):
         ident += 1
 
 # Quelques matrices de position pour tester
-for k in range(1000):
+for k in range(3000):
     Matrix += [M_0]
     Matrix += [M_1]
     Matrix_Y += [M_1]
     Matrix_Y += [M_3]
-for k in range(500):
+for k in range(1500):
     Matrix += [M_0]
     Matrix += [M_1]
     Matrix_Y += [M_1]
@@ -115,7 +115,32 @@ def detect_coup(M0,M1):
                 arrivee = [i,j]
     return Ids[postolist(depart)][postolist(arrivee)]
 
+def matrixTOlign(M):
+    # Fonction qui aplatit la matrice des positions sur une ligne 
+    output = np.zeros((np.shape(M)[0]*np.shape(M)[1]))
+    c = 0
+    for i in range(8):
+        for j in range(8):
+            output[c] = M[i][j] 
+            c += 1
+    return output
 
+def lignTOpos(i):
+    # Fonction qui donne la position dans la matrice à partir de celle dans la liste aplatie
+    return [i%7,i//7]
+
+letters = ['a','b','c','d','e','f','g','h']
+def postostr(L):
+    # Conversion de la position en case string
+    return letters[L[0]] + str(L[1])
+
+def idTOcoup(i,Ids):
+    # Fonction qui renvoie le coup joué en format string à partir de l'ID du coup
+    for j in range(64):
+        for k in range(64):
+            if Ids[j][k]==i:
+                return postostr(lignTOpos(j)) + ' => ' + postostr(lignTOpos(k))
+    
 for m in range(len(Matrix)):
     x = []
     y = []
@@ -135,7 +160,7 @@ DFy = pd.DataFrame(List_coups)
 
 
 trainData,testData,trainY,testY = train_test_split(Mx,List_coups,test_size=0.1) # Séparation en données d'entrainement et données de test
-kNN = KNeighborsClassifier(n_neighbors=8,algorithm='kd_tree',metric='minkowski',p=2,n_jobs=-1)
+kNN = KNeighborsClassifier(n_neighbors=3,algorithm='kd_tree',metric='minkowski',p=2,n_jobs=-1)
 classifier = MultiOutputClassifier(kNN, n_jobs=-1)
 classifier.fit(trainData,trainY) # Entrainement du réseau de neurone
 trainPredictionsk = classifier.predict(trainData) # Entrainement à la prédiction de la sortie 
@@ -143,4 +168,4 @@ trainPredictionsk = classifier.predict(trainData) # Entrainement à la prédicti
 trainCMk = confusion_matrix(y_pred=trainPredictionsk,y_true=trainY) # Calcul matrice de confusion
 testpredict = classifier.predict(testData)
 testCM = confusion_matrix(y_pred=testpredict,y_true=testY) # Matrice de confusion, les résultats juste sont comptés sur la diagonale, les autres sur le reste de la matrice.
-print('Score = ' + str(testCM.trace()/sum(sum(testCM))))
+print('Score = ' + str(testCM.trace()/sum(sum(testCM)))) # Calcul performance
